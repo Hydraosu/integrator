@@ -35,7 +35,7 @@ class ProfileController extends Controller
      */
     public function index()
     {
-        return view('/settings/profile', ['user' => $this->user]);
+        return view('/settings/profile/index', ['user' => $this->user]);
     }
 
     public function update(Request $request)

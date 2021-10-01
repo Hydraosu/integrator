@@ -16,7 +16,7 @@
                 <x-adminlte-input name="name" label="Change name" placeholder="Name"
                                   fgroup-class="col-md-4" disable-feedback value="{{ $user->name }}"/>
             </div>
-
+s
             <x-adminlte-button type="submit" label="Save" theme="primary" icon="fas fa-key"/>
         </x-adminlte-card>
     </form>
@@ -24,8 +24,4 @@
 
 @section('css')
     <link rel="stylesheet" href="/css/admin_custom.css">
-@stop
-
-@section('js')
-    <script> console.log('Hi!'); </script>
 @stop

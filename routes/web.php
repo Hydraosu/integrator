@@ -20,6 +20,8 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
-Route::get('/settings/profile', 'ProfileController@index')->name('profile')->middleware('auth');;
+Route::get('/settings/profile', 'ProfileController@index')->name('profile')->middleware('auth');
+Route::get('/invoices', 'InvoiceController@index')->name('invoices')->middleware('auth');
 
 Route::post('/settings/profile/update', 'ProfileController@update');
+Route::get('/invoices/importWfirma', 'InvoiceController@importWfirma')->name('importWfirma');
