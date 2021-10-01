@@ -36,13 +36,6 @@ class InvoiceController extends Controller
      */
     public function index()
     {
-        $heads = [
-            'ID',
-            'Name',
-            ['label' => 'Phone', 'width' => 40],
-            ['label' => 'Actions', 'no-export' => true, 'width' => 5],
-        ];
-
         $btnEdit = '<button class="btn btn-xs btn-default text-primary mx-1 shadow" title="Edit">
                     <i class="fa fa-lg fa-fw fa-pen"></i>
                 </button>';
@@ -55,12 +48,23 @@ class InvoiceController extends Controller
 
         $config = [
             'data' => [
-                [22, 'John Bender', '+02 (123) 123456789', '<nobr>'.$btnEdit.$btnDelete.$btnDetails.'</nobr>'],
-                [19, 'Sophia Clemens', '+99 (987) 987654321', '<nobr>'.$btnEdit.$btnDelete.$btnDetails.'</nobr>'],
-                [3, 'Peter Sousa', '+69 (555) 12367345243', '<nobr>'.$btnEdit.$btnDelete.$btnDetails.'</nobr>'],
             ],
             'order' => [[1, 'asc']],
             'columns' => [null, null, null, ['orderable' => false]],
+        ];
+
+        $invoices = DB::table('invoices')->get();
+
+        foreach ($invoices as $invoice) {
+            unset($invoice->id);
+
+            $config['data'][] = $invoice;
+        }
+
+        $heads = [
+            'Fullnumber',
+            ['label' => 'Date', 'width' => 40],
+            ['label' => 'Actions', 'no-export' => true, 'width' => 5],
         ];
 
         return view('/invoices/index',
@@ -75,19 +79,24 @@ class InvoiceController extends Controller
 
         $response = Http::withBasicAuth('piotr.malinowski@wfirma.pl', 'qweasdzxc')->get('http://api2.wf.localhost/invoices/find?outputFormat=json', []);
         $xml = simplexml_load_string($response->body());
+        $invoicesCounter = 0;
 
         foreach ($xml[0]->invoices->invoice as $invoice) {
-            DB::table('invoices')
-                ->insert(
-                    [
-                        'invoice_number' => $invoice->fullnumber,
-                        'date' => $invoice->date
-                    ]
-                );
+            if (DB::table('invoices')->where('invoice_number', $invoice->fullnumber)->doesntExist()) {
+                DB::table('invoices')
+                    ->insert(
+                        [
+                            'invoice_number' => $invoice->fullnumber,
+                            'date' => $invoice->date
+                        ]
+                    );
+
+                $invoicesCounter += 1;
+            }
         }
 
 
 
-        return redirect()->action([InvoiceController::class, 'index']);
+        return redirect()->action([InvoiceController::class, 'index'])->with(['response' => 'Zaimportowano faktur: ' . $invoicesCounter]);
     }
 }
